@@ -2,7 +2,7 @@ import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'ax
 
 // Create a custom axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:5001/api',
+  baseURL: 'https://jobserver1.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
   },
