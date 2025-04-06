@@ -107,7 +107,7 @@ export default function NotificationsPage() {
             <Bell className="h-12 w-12 mx-auto text-muted-foreground opacity-50 mb-4" />
             <h3 className="text-lg font-medium mb-2">No notifications yet</h3>
             <p className="text-muted-foreground">
-              You'll receive notifications about your job applications and other updates here.
+              You will receive notifications about your job applications and other updates here.
             </p>
           </div>
         ) : (

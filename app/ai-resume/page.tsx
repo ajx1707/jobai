@@ -691,7 +691,7 @@ export default function AIResumePage() {
                       </div>
                       
                       {!showFullAnalysis ? (
-                        <p className="text-muted-foreground">Click "Show Details" to view the complete analysis of your resume.</p>
+                        <p className="text-muted-foreground">Click &quot;Show Details&quot; to view the complete analysis of your resume.</p>
                       ) : (
                         <div 
                           className="border rounded-md p-6 max-h-[500px] overflow-y-auto custom-scrollbar bg-background"

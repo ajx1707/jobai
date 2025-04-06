@@ -229,7 +229,7 @@ export default function JobManagePage() {
               <CardContent>
                 <h2 className="text-xl font-bold mb-2">Job Not Found</h2>
                 <p className="text-muted-foreground mb-4">
-                  We couldn't find the job you're looking for. It may have been removed or is no longer available.
+                  We could not find the job you are looking for. It may have been removed or is no longer available.
                 </p>
                 <Button onClick={() => router.push('/home/recruiter')}>
                   Back to Jobs
