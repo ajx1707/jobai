@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -52,58 +52,21 @@ export default function JobManagePage() {
   const [job, setJob] = useState<JobDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
-  
-  const jobId = params.id as string;
 
-  // Mock applications data for demo purposes
-  const mockApplications: Application[] = [
-    {
-      id: "1",
-      applicantName: "John Doe",
-      applicantEmail: "john.doe@example.com",
-      resumeUrl: "/mock-resume.pdf",
-      matchScore: 85,
-      status: "shortlisted",
-      appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      matchedSkills: ["React", "TypeScript", "Node.js", "MongoDB"],
-      unmatchedSkills: ["GraphQL"]
-    },
-    {
-      id: "2",
-      applicantName: "Jane Smith",
-      applicantEmail: "jane.smith@example.com",
-      resumeUrl: "/mock-resume.pdf",
-      matchScore: 70,
-      status: "pending",
-      appliedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      matchedSkills: ["React", "JavaScript", "CSS"],
-      unmatchedSkills: ["TypeScript", "AWS"]
-    },
-    {
-      id: "3",
-      applicantName: "Alex Johnson",
-      applicantEmail: "alex@example.com",
-      resumeUrl: "/mock-resume.pdf",
-      matchScore: 52,
-      status: "reviewed",
-      appliedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      matchedSkills: ["JavaScript", "HTML"],
-      unmatchedSkills: ["React", "TypeScript", "Redux"]
-    }
-  ];
+  const jobId = params.id as string;
 
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
         setErrorLoading(false);
-        
+
         // Fetch job details using the recruiter-specific endpoint to ensure ownership
         const jobResponse = await api.get(`/jobs/${jobId}?management=true`);
         console.log('Fetched job details:', jobResponse.data);
-        
+
         const jobData = jobResponse.data.job;
-        
+
         // Verify this job belongs to the current recruiter
         if (user && jobData && user.email !== jobData.recruiterEmail) {
           console.error('Access denied: Job does not belong to current recruiter');
@@ -115,18 +78,18 @@ export default function JobManagePage() {
           });
           return;
         }
-        
+
         // Fetch job applications
         try {
           const applicantsResponse = await api.get(`/jobs/${jobId}/applicants`);
           console.log('Fetched job applicants:', applicantsResponse.data);
-          
+
           // Combine job and applicants data
           const jobWithApplications = {
             ...jobData,
             applications: applicantsResponse.data.applications || []
           };
-          
+
           setJob(jobWithApplications);
         } catch (applicantsError) {
           console.error('Error fetching job applicants:', applicantsError);
@@ -153,32 +116,32 @@ export default function JobManagePage() {
 
   const updateApplicationStatus = async (applicationId: string, newStatus: Application['status']) => {
     if (!job) return;
-    
+
     try {
       console.log(`Updating application ${applicationId} to status: ${newStatus}`);
-      
+
       // Call API to update status
       const response = await api.put(`/applications/${applicationId}/status`, {
         status: newStatus,
         notes: "Application status changed by recruiter."  // Add some default notes
       });
-      
+
       console.log('Status update response:', response.data);
-      
+
       if (response.data.feedback) {
         console.log('Feedback generated:', response.data.feedback);
       }
-      
+
       // Update local state
-      const updatedApplications = job.applications?.map(app => 
+      const updatedApplications = job.applications?.map(app =>
         app.id === applicationId ? { ...app, status: newStatus } : app
       );
-      
+
       setJob({
         ...job,
         applications: updatedApplications
       });
-      
+
       toast({
         title: "Status Updated",
         description: `Applicant status changed to ${newStatus}.`,
@@ -217,14 +180,14 @@ export default function JobManagePage() {
       <AuthGuard requiredRole="recruiter">
         <div className="min-h-screen bg-background pb-20">
           <div className="max-w-4xl mx-auto p-4">
-            <Button 
-              variant="ghost" 
-              className="mb-4" 
+            <Button
+              variant="ghost"
+              className="mb-4"
               onClick={() => router.push('/home/recruiter')}
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Jobs
             </Button>
-            
+
             <Card className="p-6 text-center">
               <CardContent>
                 <h2 className="text-xl font-bold mb-2">Job Not Found</h2>
@@ -247,14 +210,14 @@ export default function JobManagePage() {
     <AuthGuard requiredRole="recruiter">
       <div className="min-h-screen bg-background pb-20">
         <div className="max-w-4xl mx-auto p-4">
-          <Button 
-            variant="ghost" 
-            className="mb-4" 
+          <Button
+            variant="ghost"
+            className="mb-4"
             onClick={() => router.push('/home/recruiter')}
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Jobs
           </Button>
-          
+
           {loading ? (
             <JobManageSkeleton />
           ) : job ? (
@@ -291,7 +254,7 @@ export default function JobManagePage() {
                   <TabsTrigger value="applicants">Applicants</TabsTrigger>
                   <TabsTrigger value="details">Job Details</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="applicants">
                   <Card>
                     <CardHeader>
@@ -312,12 +275,12 @@ export default function JobManagePage() {
                                   <div className="flex items-center mt-2">
                                     <span className="text-sm mr-2">Match Score:</span>
                                     <div className="w-32 h-2 bg-gray-200 rounded-full">
-                                      <div 
+                                      <div
                                         className={`h-2 rounded-full ${
                                           application.matchScore >= 80 ? 'bg-green-500' :
                                           application.matchScore >= 60 ? 'bg-yellow-500' :
                                           'bg-red-500'
-                                        }`} 
+                                        }`}
                                         style={{ width: `${application.matchScore}%` }}
                                       ></div>
                                     </div>
@@ -336,11 +299,11 @@ export default function JobManagePage() {
                                         // For demo purposes: show first ~60% of skills as matched, rest as unmatched
                                         const isMatched = index < Math.ceil(job.skills.length * 0.6);
                                         return (
-                                          <span 
+                                          <span
                                             key={index}
                                             className={`text-xs px-2 py-0.5 rounded-full ${
-                                              isMatched 
-                                                ? "bg-green-100 text-green-800" 
+                                              isMatched
+                                                ? "bg-green-100 text-green-800"
                                                 : "bg-red-100 text-red-800 line-through"
                                             }`}
                                           >
@@ -369,29 +332,29 @@ export default function JobManagePage() {
                                 </div>
                               </div>
                               <div className="mt-4 flex flex-wrap gap-2">
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   variant={application.status === "pending" ? "default" : "outline"}
                                   onClick={() => updateApplicationStatus(application.id, "pending")}
                                 >
                                   Pending
                                 </Button>
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   variant={application.status === "reviewed" ? "default" : "outline"}
                                   onClick={() => updateApplicationStatus(application.id, "reviewed")}
                                 >
                                   Reviewed
                                 </Button>
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   variant={application.status === "shortlisted" ? "default" : "outline"}
                                   onClick={() => updateApplicationStatus(application.id, "shortlisted")}
                                 >
                                   Shortlist
                                 </Button>
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   variant={application.status === "rejected" ? "destructive" : "outline"}
                                   onClick={() => updateApplicationStatus(application.id, "rejected")}
                                 >
@@ -413,7 +376,7 @@ export default function JobManagePage() {
                     </CardContent>
                   </Card>
                 </TabsContent>
-                
+
                 <TabsContent value="details">
                   <div className="grid grid-cols-1 gap-6">
                     <Card>
@@ -439,8 +402,8 @@ export default function JobManagePage() {
                                   <span>Importance: {skill.weight}%</span>
                                 </div>
                                 <div className="w-full h-2 bg-gray-200 rounded-full">
-                                  <div 
-                                    className="h-2 bg-primary rounded-full" 
+                                  <div
+                                    className="h-2 bg-primary rounded-full"
                                     style={{ width: `${skill.weight}%` }}
                                   ></div>
                                 </div>
@@ -452,26 +415,26 @@ export default function JobManagePage() {
                         )}
                       </CardContent>
                     </Card>
-                    
+
                     <div className="flex justify-between space-x-4">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         className="flex-1"
                         onClick={() => {
                           // Toggle job active status
                           setJob(job => job ? {...job, active: !job.active} : null);
                           toast({
                             title: job.active ? "Job Deactivated" : "Job Activated",
-                            description: job.active 
-                              ? "This job is now hidden from applicants" 
+                            description: job.active
+                              ? "This job is now hidden from applicants"
                               : "This job is now visible to applicants",
                           });
                         }}
                       >
                         {job.active ? "Deactivate Job" : "Activate Job"}
                       </Button>
-                      <Button 
-                        variant="destructive" 
+                      <Button
+                        variant="destructive"
                         className="flex-1"
                         onClick={() => {
                           toast({
@@ -554,4 +517,4 @@ function JobManageSkeleton() {
       </Card>
     </>
   );
-} 
+}
