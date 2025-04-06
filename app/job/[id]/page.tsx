@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -36,7 +36,7 @@ export default function JobPage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [applying, setApplying] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<string>('idle');
-  
+
   const jobId = params.id as string;
 
   useEffect(() => {
@@ -84,7 +84,6 @@ export default function JobPage() {
 
     setApplying(true);
     try {
-      // Convert resume file to base64 data
       const reader = new FileReader();
       const fileDataPromise = new Promise<string>((resolve) => {
         reader.onload = (e) => {
@@ -92,20 +91,18 @@ export default function JobPage() {
           resolve(result);
         };
       });
-      
+
       reader.readAsDataURL(resumeFile);
       const resumeData = await fileDataPromise;
-      
-      // Prepare application data
+
       const applicationData = {
         resumeData,
         matchScore: 0
       };
-      
-      // Submit application to the API
+
       const response = await api.post(`/jobs/${jobId}/apply`, applicationData);
       console.log('Application submitted:', response.data);
-      
+
       setApplicationStatus('success');
       toast({
         title: "Application Submitted",
