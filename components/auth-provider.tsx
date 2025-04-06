@@ -21,7 +21,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 // API URL for auth endpoints
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'https://jobserver1.onrender.com/api';
 
 export function useAuth() {
   const context = useContext(AuthContext);
