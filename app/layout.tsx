@@ -2,7 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { NavigationBar } from "@/components/navigation-bar";
 import AuthProvider from "@/components/auth-provider";
 
@@ -29,7 +30,8 @@ export default function RootLayout({
         >
           <AuthProvider>
             {children}
-            <Toaster />
+            <NavigationBar />
+            <ToastContainer />
           </AuthProvider>
         </ThemeProvider>
       </body>

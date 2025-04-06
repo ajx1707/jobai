@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,31 +53,7 @@ export default function ProfilePage() {
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Fetch profile data on component mount
-  useEffect(() => {
-    if (user) {
-      // Check if token exists
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.error("No authentication token found!");
-        toast({
-          title: "Authentication Error",
-          description: "You are not logged in. Redirecting to login page...",
-          variant: "destructive"
-        });
-        
-        // Redirect to login
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 2000);
-        return;
-      }
-      
-      fetchProfile();
-    }
-  }, [user]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
       console.log("Fetching profile data");
@@ -89,7 +65,7 @@ export default function ProfilePage() {
       console.error("Error fetching profile:", error);
       console.error("Error response:", error.response?.data);
       console.error("Error status:", error.response?.status);
-      
+
       if (error.response?.status === 422 || error.response?.status === 401) {
         // Token might be invalid - try to refresh or redirect to login
         toast({
@@ -108,20 +84,44 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    if (user) {
+      // Check if token exists
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error("No authentication token found!");
+        toast({
+          title: "Authentication Error",
+          description: "You are not logged in. Redirecting to login page...",
+          variant: "destructive"
+        });
+
+        // Redirect to login
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+        return;
+      }
+
+      fetchProfile();
+    }
+  }, [user, fetchProfile, toast]);
 
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
       console.log("Preparing profile data for save");
-      
+
       // Create a copy of the profile without the image for logging
       const profileForLogging = {
         ...profile,
         profileImage: profile.profileImage ? '[IMAGE DATA]' : '',
       };
       console.log("Profile data (without image):", profileForLogging);
-      
+
       // Create a clean profile object to save
       const profileToSave: Profile = {
         userId: profile.userId,
@@ -133,7 +133,7 @@ export default function ProfilePage() {
         experiences: Array.isArray(profile.experiences) ? profile.experiences : [],
         education: Array.isArray(profile.education) ? profile.education : [],
       };
-      
+
       // Handle the profile image - check its size
       if (profile.profileImage) {
         // Check image size - if it's too large, we might need to compress it
@@ -143,26 +143,26 @@ export default function ProfilePage() {
         }
         profileToSave.profileImage = profile.profileImage;
       }
-      
+
       // Make API request - let axios interceptor handle the token
       console.log("Making API request to update profile");
       const saveResponse = await api.post('/profile', profileToSave);
-      
+
       console.log("Profile saved successfully:", saveResponse.status);
       console.log("Response data:", saveResponse.data);
-      
+
       toast({
         title: "Success",
         description: "Profile saved successfully!",
       });
-      
+
       // Refresh profile data
       await fetchProfile();
     } catch (error: any) {
       console.error("Error saving profile:", error);
       console.error("Error response:", error.response?.data);
       console.error("Error status:", error.response?.status);
-      
+
       if (error.response?.status === 422 || error.response?.status === 401) {
         // Token might be invalid
         toast({
@@ -258,18 +258,18 @@ export default function ProfilePage() {
     // For now, create a preview URL for the image
     const imageUrl = URL.createObjectURL(file);
     setImagePreview(imageUrl);
-    
+
     // Use FileReader to convert the image to a Data URL
     const reader = new FileReader();
     reader.onloadend = () => {
       try {
         const result = reader.result as string;
-        
+
         // Optionally compress the image if it's still large
         if (result.length > 1000000) {
           console.log("Image is large, consider implementing compression");
         }
-        
+
         setProfile({
           ...profile,
           profileImage: result
@@ -283,7 +283,7 @@ export default function ProfilePage() {
         });
       }
     };
-    
+
     reader.onerror = () => {
       console.error("Error reading file");
       toast({
@@ -292,7 +292,7 @@ export default function ProfilePage() {
         variant: "destructive"
       });
     };
-    
+
     reader.readAsDataURL(file);
   };
 
@@ -323,40 +323,40 @@ export default function ProfilePage() {
                         <AvatarFallback>{profile.name?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
                       )}
                     </Avatar>
-                    <label 
-                      htmlFor="profile-image" 
+                    <label
+                      htmlFor="profile-image"
                       className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1 cursor-pointer"
                     >
                       <Upload className="h-4 w-4" />
                       <span className="sr-only">Upload profile image</span>
                     </label>
-                    <Input 
-                      id="profile-image" 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
+                    <Input
+                      id="profile-image"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
                       onChange={handleImageUpload}
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <Input 
-                    placeholder="Full Name" 
+                  <Input
+                    placeholder="Full Name"
                     value={profile.name}
                     onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                   />
-                  <Input 
-                    placeholder="Email" 
-                    value={profile.email} 
-                    disabled 
+                  <Input
+                    placeholder="Email"
+                    value={profile.email}
+                    disabled
                   />
-                  <Input 
-                    placeholder="Location" 
+                  <Input
+                    placeholder="Location"
                     value={profile.location}
                     onChange={(e) => setProfile({ ...profile, location: e.target.value })}
                   />
-                  <Textarea 
-                    placeholder="Bio" 
+                  <Textarea
+                    placeholder="Bio"
                     value={profile.bio}
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                   />
@@ -391,23 +391,23 @@ export default function ProfilePage() {
                           <Minus className="h-4 w-4" />
                         </Button>
                       </div>
-                      <Input 
-                        placeholder="Job Title" 
+                      <Input
+                        placeholder="Job Title"
                         value={exp.title}
                         onChange={(e) => updateExperience(index, "title", e.target.value)}
                       />
-                      <Input 
-                        placeholder="Company" 
+                      <Input
+                        placeholder="Company"
                         value={exp.company}
                         onChange={(e) => updateExperience(index, "company", e.target.value)}
                       />
-                      <Input 
-                        placeholder="Duration" 
+                      <Input
+                        placeholder="Duration"
                         value={exp.duration}
                         onChange={(e) => updateExperience(index, "duration", e.target.value)}
                       />
-                      <Textarea 
-                        placeholder="Description" 
+                      <Textarea
+                        placeholder="Description"
                         value={exp.description}
                         onChange={(e) => updateExperience(index, "description", e.target.value)}
                       />
@@ -444,18 +444,18 @@ export default function ProfilePage() {
                           <Minus className="h-4 w-4" />
                         </Button>
                       </div>
-                      <Input 
-                        placeholder="Degree" 
+                      <Input
+                        placeholder="Degree"
                         value={edu.degree}
                         onChange={(e) => updateEducation(index, "degree", e.target.value)}
                       />
-                      <Input 
-                        placeholder="Institution" 
+                      <Input
+                        placeholder="Institution"
                         value={edu.institution}
                         onChange={(e) => updateEducation(index, "institution", e.target.value)}
                       />
-                      <Input 
-                        placeholder="Year" 
+                      <Input
+                        placeholder="Year"
                         value={edu.year}
                         onChange={(e) => updateEducation(index, "year", e.target.value)}
                       />
