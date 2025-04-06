@@ -668,7 +668,7 @@ export default function AIResumePage() {
                         </h3>
                       </div>
                       <p className="mb-4">
-                        We've analyzed your resume and prepared personalized skill development recommendations to help advance your career.
+                        We&apos;ve analyzed your resume and prepared personalized skill development recommendations to help advance your career.
                       </p>
                       <Button className="w-full" onClick={goToSuggestions}>
                         View Skill Recommendations
